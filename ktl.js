@@ -2256,7 +2256,7 @@ font-size:large;text-align:center;font-weight:bold;border-radius:25px;padding-le
                         var activeFilterIndex = allFiltersObj[filterDivId].active;
 
                         for (var btnIndex = 0; btnIndex < allFiltersObj[filterDivId].filters.length; btnIndex++) {
-                            var filter = allFiltersObj[filterDivId].filters[btnIndex];
+                            var filter = allFiltersObj[filterDivIdfilterDivId].filters[btnIndex];
 
                             if (filter.filterName === '') break;
                             var filterBtn = ktl.fields.addButton(filterDiv, filter.filterName, filterBtnStyle,
@@ -2274,6 +2274,10 @@ font-size:large;text-align:center;font-weight:bold;border-radius:25px;padding-le
                             //Handle button click: apply filter =================================================================
                             filterBtn.filter = filter;
                             filterBtn.save = true;
+
+                            const pageSelected = $('select.kn-page-select option:selected').val()
+                            debugger
+ 
                             filterBtn.addEventListener('click', function (e) {
                                 e.preventDefault();
 
@@ -2308,19 +2312,59 @@ font-size:large;text-align:center;font-weight:bold;border-radius:25px;padding-le
 
                                 var encodedNewPerPage = encodeURIComponent(e.currentTarget.filter.perPageString)
 
-                                var encodedNewSort = encodeURIComponent(e.currentTarget.filter.sortString).replace(/'/g, "%27").replace(/"/g, "%22");
+                                var encodedNewSort = encodeURIComponent(e.currentTarget.filter.sortString).replace(/'/g, "%27").replace(/"/g, "%22").replace("%7C", "|");
 
-                                var encodedNewPage = encodeURIComponent(e.currentTarget.filter.pageString)
-
-                                var allParams = filterDivId + '_filters=' + encodedNewFilter + '&' + filterDivId + '_per_page=' + encodedNewPerPage + '&' + filterDivId + '_sort=' + encodedNewSort + '&' + filterDivId + '_page=' + encodedNewPage;
+                                var allParams = filterDivId + '_filters=' + encodedNewFilter + '&' + filterDivId + '_per_page=' + encodedNewPerPage + '&' + filterDivId + '_sort=' + encodedNewSort;
 
                                 newUrl += allParams;
 
-                                if (window.location.href !== newUrl)
+                                //Testing not finish
+                                /*$('view_552').on('knack-view-ready', console.log("ready!"))
+                                $('view_552').on('knack-view-render', console.log("render!"))
+                                $('select.kn-page-select').change(function () {
+                                    debugger
+                                })*/
+
+                                function setSelectedIndex(i) {
+                                    $("select.kn-page-select")[0].options[i - 1].selected = true;
+                                    console.log('ok')
+                                };
+
+                                const getCurrentPage = (function () {
+                                    var executedCurrent
+                                    return function () {
+                                        if (!executedCurrent) {
+                                            executedCurrent = true
+                                            console.log(console.log(localStorage.getItem('currentPage')));
+                                            localStorage.setItem('currentPage', pageSelected)
+                                        }
+                                    };
+                                })();
+
+                                $(".kn-pagination-arrows").on('click', function (event) {
+                                    //getCurrentPage()
+                                    setTimeout(() => {
+                                        setSelectedIndex(localStorage.getItem('currentPage'));
+                                        console.log('10sec')
+                                    }, 8500)
+                                    console.log('click')
+                                    executedCurrent = false
+                                });
+
+                                if (performance.navigation.type == performance.navigation.TYPE_RELOAD) {
+                                    localStorage.setItem('currentPage', 1)
+                                }
+
+                                getCurrentPage()
+                                debugger;
+                                if (window.location.href !== newUrl) {
                                     window.location.href = newUrl;
+
+                                };
+                                
+                                
                             });
-
-
+                            
                             //===================================================================================================
                             //Right-click to provide Delete and Rename options.
                             filterBtn.addEventListener('contextmenu', function (e) {
@@ -2409,7 +2453,6 @@ font-size:large;text-align:center;font-weight:bold;border-radius:25px;padding-le
             var newFilterStr = '';
             var newSortStr = '';
             var newPerPageStr = '';
-            var newPageStr = '';
             var parts = ktl.core.splitUrl(window.location.href);
             const params = Object.entries(parts['params']);
             if (!$.isEmptyObject(params)) {
@@ -2427,13 +2470,8 @@ font-size:large;text-align:center;font-weight:bold;border-radius:25px;padding-le
                         newSortStr = param[1];
                 });
 
-                params.forEach(function (param) {
-                    if (param[0].indexOf(filterDivId + '_page') >= 0)
-                        newPageStr = param[1];
-                });
             }
 
-            if (!newPageStr) return;
             if (!newSortStr) return;
             if (!newPerPageStr) return;
             if (!newFilterStr) return;
@@ -2460,15 +2498,15 @@ font-size:large;text-align:center;font-weight:bold;border-radius:25px;padding-le
                         }
                     } else {
                         //console.log('Adding filter to existing view');
-                        allFiltersObj[filterDivId].filters.push({ 'filterName': filterName, 'filterString': newFilterStr, 'perPageString': newPerPageStr, 'sortString': newSortStr, 'pageString': newPageStr });
+                        allFiltersObj[filterDivId].filters.push({ 'filterName': filterName, 'filterString': newFilterStr, 'perPageString': newPerPageStr, 'sortString': newSortStr });
                     }
                 } else {
                     //console.log('View not found.  Adding view with new filter');
-                    allFiltersObj[filterDivId] = { filters: [{ 'filterName': filterName, 'filterString': newFilterStr, 'perPageString': newPerPageStr, 'sortString': newSortStr, 'pageString': newPageStr }] };
+                    allFiltersObj[filterDivId] = { filters: [{ 'filterName': filterName, 'filterString': newFilterStr, 'perPageString': newPerPageStr, 'sortString': newSortStr }] };
                 }
             } else {
                 //console.log('No filters found, creating new');
-                allFiltersObj[filterDivId] = { filters: [{ 'filterName': filterName, 'filterString': newFilterStr, 'perPageString': newPerPageStr, 'sortString': newSortStr, 'pageString': newPageStr }] };
+                allFiltersObj[filterDivId] = { filters: [{ 'filterName': filterName, 'filterString': newFilterStr, 'perPageString': newPerPageStr, 'sortString': newSortStr }] };
             }
 
             ktl.userFilters.setActiveFilter(filterName, filterDivId);
