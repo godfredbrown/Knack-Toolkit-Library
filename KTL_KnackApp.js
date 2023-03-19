@@ -99,7 +99,7 @@ var KnackApp = function ($, info = {}) {
         ktl.systemColors.getSystemColors()
             .then(sc => {
                 ktl.systemColors.setCfg({
-                    inlineEditBkgColor: '', //Could also be some other presets in sysColors like: sc.paleLowSatClrTransparent
+                    inlineEditBkgColor: '#FCB97D', //Could also be some other presets in sysColors like: sc.paleLowSatClrTransparent
                     inlineEditFontWeight: '', //Can be 'bold' or a numeric value like 600.
                     tableRowHoverBkgColor: '', //Or a named color like 'mistyrose' or a hex RGBA value '#a0454b75'
                 })
